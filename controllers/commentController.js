@@ -77,7 +77,7 @@ exports.deleteComment = (req, res) => {
 
 // POST/CREATE new inventory item
 exports.newComment = (req, res) => {
-  const newID = uuid();
+  const newID = uuid;
   const { user_id, comment, timestamp } = req.body;
 
   if (!user_id || !comment) {

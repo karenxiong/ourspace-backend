@@ -72,7 +72,7 @@ exports.deleteCollection = (req, res) => {
 
 // POST/CREATE new inventory item
 exports.newCollection = (req, res) => {
-  const newID = uuid();
+  const newID = uuid;
   const { name } = req.body;
 
   if (!name) {

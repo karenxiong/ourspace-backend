@@ -1,10 +1,20 @@
 const knex = require("knex")(require("../knexfile"));
 const crypto = require("crypto");
 const { body, validationResult } = require("express-validator");
-const uuid = crypto.randomUUID();
+const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 
 exports.getAllPosts = (req, res) => {
   knex("posts")
+    // .join("users", "posts.user_id", "=", "users.id")
+    .select(
+      "posts.id",
+      "posts.title",
+      "posts.image",
+      "posts.user_id",
+      "posts.timestamp",
+      "posts.description",
+      "posts.likes"
+    )
     .then((data) => {
       res.status(200).json(data);
     })
@@ -40,6 +50,7 @@ exports.updatePost = [
 
 exports.getPostId = (req, res) => {
   knex
+    .join("users", "posts.user_id", "=", "users.id")
     .select(
       "posts.id",
       "posts.title",
@@ -49,7 +60,8 @@ exports.getPostId = (req, res) => {
       "posts.description",
       "posts.item_id",
       "posts.likes",
-      "posts.comment_id"
+      "posts.comment_id",
+      "users.username"
     )
     .from("posts")
     .where("posts.id", req.params.id)
@@ -82,11 +94,11 @@ exports.deletePost = (req, res) => {
     });
 };
 
-// POST/CREATE new inventory item
+// POST/CREATE new post
 exports.newPost = (req, res) => {
+  const uuid = crypto.randomUUID();
   const newID = uuid;
-  const { title, image, user_id } = req.body;
-
+  const { title, image, user_id, description } = req.body;
   if (!title || !image || !user_id) {
     return res
       .status(400)
@@ -98,6 +110,7 @@ exports.newPost = (req, res) => {
       title,
       image,
       user_id,
+      description,
     })
     .then((data) => {
       const newPostURL = `/posts/${data[0]}`;
