@@ -7,7 +7,7 @@ exports.up = function (knex) {
     .createTable("posts", (table) => {
       table.uuid("id").primary();
       table.string("title").notNullable();
-      table.text("image");
+      table.string("image");
       table.string("user_id").notNullable();
       table.timestamp("timestamp").defaultTo(knex.fn.now());
       table.string("description").notNullable();
@@ -54,7 +54,7 @@ exports.up = function (knex) {
 exports.down = function (knex) {
   return knex.schema
     .dropTable("collections")
-    .dropTable("posts")
     .dropTable("comments")
-    .dropTable("items");
+    .dropTable("items")
+    .dropTable("posts");
 };

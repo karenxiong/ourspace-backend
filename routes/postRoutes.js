@@ -2,6 +2,20 @@ const express = require("express");
 const router = express.Router();
 const postController = require("../controllers/postController");
 const { auth } = require("express-oauth2-jwt-bearer");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, `../${postController.UPLOAD_PATH}`));
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+// const upload = multer({ dest: "./public/data/uploads/" });
+
+const upload = multer({ storage: storage });
 
 const checkJwt = auth({
   audience: "http://localhost:8080/",
@@ -11,7 +25,7 @@ const checkJwt = auth({
 router
   .route("/")
   .get(postController.getAllPosts)
-  .post(checkJwt, postController.newPost);
+  .post(checkJwt, upload.single("uploaded_file"), postController.newPost);
 
 router
   .route("/:id")

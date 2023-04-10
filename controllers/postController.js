@@ -1,11 +1,12 @@
 const knex = require("knex")(require("../knexfile"));
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
 const { body, validationResult } = require("express-validator");
 const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 
 exports.getAllPosts = (req, res) => {
   knex("posts")
-    // .join("users", "posts.user_id", "=", "users.id")
     .select(
       "posts.id",
       "posts.title",
@@ -50,7 +51,6 @@ exports.updatePost = [
 
 exports.getPostId = (req, res) => {
   knex
-    .join("users", "posts.user_id", "=", "users.id")
     .select(
       "posts.id",
       "posts.title",
@@ -58,10 +58,7 @@ exports.getPostId = (req, res) => {
       "posts.user_id",
       "posts.timestamp",
       "posts.description",
-      "posts.item_id",
-      "posts.likes",
-      "posts.comment_id",
-      "users.username"
+      "posts.likes"
     )
     .from("posts")
     .where("posts.id", req.params.id)
@@ -94,30 +91,59 @@ exports.deletePost = (req, res) => {
     });
 };
 
+const UPLOAD_PATH = "public/data/uploads/";
+exports.UPLOAD_PATH = UPLOAD_PATH;
+
 // POST/CREATE new post
-exports.newPost = (req, res) => {
+exports.newPost = async (req, res) => {
+  console.log("req.body:", req.body);
+  console.log("req.file:", req.file);
   const uuid = crypto.randomUUID();
   const newID = uuid;
-  const { title, image, user_id, description } = req.body;
-  if (!title || !image || !user_id) {
+  const { title, user_id, description } = req.body;
+
+  if (!title) {
     return res
       .status(400)
-      .send({ message: "Please make sure to provide a title and an image" });
+      .send({ message: "Please make sure to provide a title" });
   }
-  knex("posts")
-    .insert({
+
+  if (!req.file) {
+    return res
+      .status(400)
+      .send({ message: "Please make sure to provide an image" });
+  }
+
+  if (!user_id) {
+    return res.status(400).send({ message: "Please make sure to login" });
+  }
+  const filePath = `${UPLOAD_PATH}/${req.file.filename}`;
+  // const filePath = req.file
+  //   ? path.join(
+  //       __dirname,
+  //       "..",
+  //       "resources",
+  //       "static",
+  //       "assets",
+  //       "uploads",
+  //       req.file.filename
+  //     )
+  //   : null;
+
+  // Save the post details to the database
+  try {
+    await knex("posts").insert({
       id: newID,
       title,
-      image,
+      image: filePath,
       user_id,
       description,
-    })
-    .then((data) => {
-      const newPostURL = `/posts/${data[0]}`;
-      res.sendStatus(201).location(newPostURL).send(newPostURL);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send({ message: "Internal server error." });
     });
+    const newPost = await knex("posts").where({ id: newID }).first();
+    const newPostURL = `/posts/${newID}`;
+    res.status(201).location(newPostURL).json({ post: newPost });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: "Internal server error." });
+  }
 };
