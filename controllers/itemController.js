@@ -1,6 +1,5 @@
 const knex = require("knex")(require("../knexfile"));
 const crypto = require("crypto");
-const uuid = crypto.randomUUID();
 const { body, validationResult } = require("express-validator");
 
 exports.getAllItems = (req, res) => {
@@ -41,13 +40,13 @@ exports.updateItem = [
 
 exports.getItemId = (req, res) => {
   knex
-    .select(
-      "items.id",
-      "items.name",
-      "items.link",
-      "items.xaxis",
-      "items.yaxis"
-    )
+    .select({
+      id: "items.id",
+      title: "items.name",
+      link: "items.link",
+      left: "items.xaxis",
+      top: "items.yaxis",
+    })
     .from("items")
     .where("items.id", req.params.id)
     .then((data) => {
@@ -81,20 +80,21 @@ exports.deleteItem = (req, res) => {
 
 // POST/CREATE new inventory item
 exports.newItem = (req, res) => {
-  const newID = uuid;
-  const { name, link, xaxis, yaxis } = req.body;
+  const uuid = crypto.randomUUID();
+  const { title, link, xaxis, yaxis, post_id } = req.body;
+  console.log("req.body: ", req.body);
 
-  if (!name || !link || !xaxis || !yaxis) {
+  if (!title || !link || !xaxis || !yaxis || !post_id) {
     return res.status(400).send({
       message:
-        "Please make sure to provide item's name, link, xaxis, and yaxis",
+        "Please make sure to provide item's title, link, xaxis, yaxis, post_id",
     });
   }
   knex("items")
-    .insert({ id: newID, name, link, xaxis, yaxis })
+    .insert({ id: uuid, name: title, link, xaxis, yaxis, post_id })
     .then((data) => {
       const newItemURL = `/items/${data[0]}`;
-      res.sendStatus(201).location(newItemURL).send(newItemURL);
+      res.status(201).location(newItemURL).send(newItemURL);
     })
     .catch((err) => {
       console.error(err);

@@ -18,6 +18,28 @@ exports.getAllPosts = (req, res) => {
       "posts.user_nickname"
     )
     .then((data) => {
+      console.log("data: ", data);
+      res.status(200).json(data);
+    })
+    .catch((err) =>
+      res
+        .status(400)
+        .json({ message: `There was an error getting posts`, error: err })
+    );
+};
+
+exports.getMarkers = (req, res) => {
+  knex("items")
+    .select({
+      id: "items.id",
+      title: "items.name",
+      link: "items.link",
+      left: "items.xaxis",
+      top: "items.yaxis",
+    })
+    .where("items.post_id", req.params.id)
+    .then((data) => {
+      console.log("data: ", data);
       res.status(200).json(data);
     })
     .catch((err) =>

@@ -33,4 +33,6 @@ router
   .put(checkJwt, postController.updatePost)
   .delete(checkJwt, postController.deletePost);
 
+router.route("/:id/markers").get(postController.getMarkers);
+
 module.exports = router;
