@@ -14,7 +14,8 @@ exports.getAllPosts = (req, res) => {
       "posts.user_id",
       "posts.timestamp",
       "posts.description",
-      "posts.likes"
+      "posts.likes",
+      "posts.user_nickname"
     )
     .then((data) => {
       res.status(200).json(data);
@@ -100,7 +101,7 @@ exports.newPost = async (req, res) => {
   console.log("req.file:", req.file);
   const uuid = crypto.randomUUID();
   const newID = uuid;
-  const { title, user_id, description } = req.body;
+  const { title, user_id, description, user_nickname } = req.body;
 
   if (!title) {
     return res
@@ -138,6 +139,7 @@ exports.newPost = async (req, res) => {
       image: filePath,
       user_id,
       description,
+      user_nickname,
     });
     const newPost = await knex("posts").where({ id: newID }).first();
     const newPostURL = `/posts/${newID}`;
