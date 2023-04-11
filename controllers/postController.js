@@ -25,9 +25,9 @@ exports.getAllPosts = (req, res) => {
     .then((data) => {
       const cleanData = data.map((post) => ({
         ...post,
-        current_user_liked: JSON.parse(post.current_user_liked).includes(
-          currentUserId
-        ),
+        current_user_liked: currentUserId
+          ? JSON.parse(post.current_user_liked).includes(currentUserId)
+          : false,
       }));
       res.status(200).json(cleanData);
     })

@@ -22,6 +22,7 @@ const checkJwt = auth({
 });
 
 router.route("/user/:id").get(postController.getAllPosts);
+router.route("/user/").get(postController.getAllPosts);
 
 router
   .route("/")
