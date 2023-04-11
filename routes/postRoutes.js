@@ -21,6 +21,9 @@ const checkJwt = auth({
   issuerBaseURL: `https://dev-ezihsb7v3ye3h2nz.us.auth0.com/`,
 });
 
+router
+  .route("/user/:id/:current_logged_in_user_id")
+  .get(postController.getAllPosts);
 router.route("/user/:id").get(postController.getAllPosts);
 router.route("/user/").get(postController.getAllPosts);
 

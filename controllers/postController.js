@@ -6,7 +6,8 @@ const { body, validationResult } = require("express-validator");
 const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 
 exports.getAllPosts = (req, res) => {
-  const currentUserId = req.params.id;
+  // const currentUserId = req.params.id;
+  const current_logged_in_user_id = req.params.current_logged_in_user_id;
 
   knex("posts")
     .leftJoin("likes", "posts.id", "=", "likes.post_id")
@@ -23,12 +24,16 @@ exports.getAllPosts = (req, res) => {
     .count("likes.id", { as: "like_count" })
     .groupBy("posts.id")
     .then((data) => {
-      const cleanData = data.map((post) => ({
-        ...post,
-        current_user_liked: currentUserId
-          ? JSON.parse(post.current_user_liked).includes(currentUserId)
-          : false,
-      }));
+      const cleanData = data.map((post) => {
+        return {
+          ...post,
+          current_user_liked: current_logged_in_user_id
+            ? JSON.parse(post.current_user_liked).includes(
+                current_logged_in_user_id
+              )
+            : false,
+        };
+      });
       res.status(200).json(cleanData);
     })
     .catch((err) =>
