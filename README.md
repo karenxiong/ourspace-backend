@@ -22,6 +22,13 @@ Then, you must seed some data into the database:
 npx knex seed:run
 ```
 
+Lastly, you will need to run the sever: 
+
+```bash
+node server.js
+```
+
+
 Now that you have installed the backend server, please visit [OurSpace Web App repository](https://github.com/karenxiong/ourspace) to follow the installation guide.
 
 ## FAQ
