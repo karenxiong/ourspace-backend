@@ -9,12 +9,11 @@ exports.getAllPosts = (req, res) => {
   const currentUserId = req.params.id;
 
   knex("posts")
-    .join("likes", "posts.id", "=", "likes.post_id")
+    .leftJoin("likes", "posts.id", "=", "likes.post_id")
     .select({
       id: "posts.id",
       title: "posts.title",
       image: "posts.image",
-      user_picture: "posts.user_picture",
       user_id: "posts.user_id",
       user_nickname: "posts.user_nickname",
       timestamp: "posts.timestamp",
@@ -149,7 +148,6 @@ exports.newPost = async (req, res) => {
       user_id,
       description,
       user_nickname,
-      user_picture,
     });
     const newPost = await knex("posts").where({ id: newID }).first();
     const newPostURL = `/posts/${newID}`;

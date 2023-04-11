@@ -8,7 +8,6 @@ exports.up = function (knex) {
       table.uuid("id").primary();
       table.string("title").notNullable();
       table.string("image");
-      table.string("user_picture").notNullable;
       table.string("user_id").notNullable();
       table.string("user_nickname").notNullable();
       table.timestamp("timestamp").defaultTo(knex.fn.now());
