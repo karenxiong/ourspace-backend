@@ -6,20 +6,31 @@ const { body, validationResult } = require("express-validator");
 const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 
 exports.getAllPosts = (req, res) => {
+  const currentUserId = req.params.id;
+
   knex("posts")
-    .select(
-      "posts.id",
-      "posts.title",
-      "posts.image",
-      "posts.user_id",
-      "posts.timestamp",
-      "posts.description",
-      "posts.likes",
-      "posts.user_nickname"
-    )
+    .join("likes", "posts.id", "=", "likes.post_id")
+    .select({
+      id: "posts.id",
+      title: "posts.title",
+      image: "posts.image",
+      user_picture: "posts.user_picture",
+      user_id: "posts.user_id",
+      user_nickname: "posts.user_nickname",
+      timestamp: "posts.timestamp",
+      description: "posts.description",
+      current_user_liked: knex.raw("JSON_ARRAYAGG(likes.user_id)"),
+    })
+    .count("likes.id", { as: "like_count" })
+    .groupBy("posts.id")
     .then((data) => {
-      console.log("data: ", data);
-      res.status(200).json(data);
+      const cleanData = data.map((post) => ({
+        ...post,
+        current_user_liked: JSON.parse(post.current_user_liked).includes(
+          currentUserId
+        ),
+      }));
+      res.status(200).json(cleanData);
     })
     .catch((err) =>
       res
@@ -39,7 +50,6 @@ exports.getMarkers = (req, res) => {
     })
     .where("items.post_id", req.params.id)
     .then((data) => {
-      console.log("data: ", data);
       res.status(200).json(data);
     })
     .catch((err) =>
@@ -73,17 +83,7 @@ exports.updatePost = [
 ];
 
 exports.getPostId = (req, res) => {
-  knex
-    .select(
-      "posts.id",
-      "posts.title",
-      "posts.image",
-      "posts.user_id",
-      "posts.timestamp",
-      "posts.description",
-      "posts.likes"
-    )
-    .from("posts")
+  knex("posts")
     .where("posts.id", req.params.id)
     .then((data) => {
       if (data.length === 0) {
@@ -119,8 +119,6 @@ exports.UPLOAD_PATH = UPLOAD_PATH;
 
 // POST/CREATE new post
 exports.newPost = async (req, res) => {
-  console.log("req.body:", req.body);
-  console.log("req.file:", req.file);
   const uuid = crypto.randomUUID();
   const newID = uuid;
   const { title, user_id, description, user_nickname } = req.body;
@@ -141,17 +139,6 @@ exports.newPost = async (req, res) => {
     return res.status(400).send({ message: "Please make sure to login" });
   }
   const filePath = `${UPLOAD_PATH}/${req.file.filename}`;
-  // const filePath = req.file
-  //   ? path.join(
-  //       __dirname,
-  //       "..",
-  //       "resources",
-  //       "static",
-  //       "assets",
-  //       "uploads",
-  //       req.file.filename
-  //     )
-  //   : null;
 
   // Save the post details to the database
   try {
@@ -162,6 +149,7 @@ exports.newPost = async (req, res) => {
       user_id,
       description,
       user_nickname,
+      user_picture,
     });
     const newPost = await knex("posts").where({ id: newID }).first();
     const newPostURL = `/posts/${newID}`;

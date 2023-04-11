@@ -3,6 +3,7 @@ const itemRoutes = require("./routes/itemRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const postRoutes = require("./routes/postRoutes");
 const collectionRoutes = require("./routes/collectionRoutes");
+const likeRoutes = require("./routes/likeRoutes");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -18,6 +19,7 @@ app.use("/public", express.static("public"));
 app.use(cors());
 app.use(express.json());
 
+app.use("/likes", likeRoutes);
 app.use("/items", itemRoutes);
 app.use("/comments", commentRoutes);
 app.use("/posts", postRoutes);

@@ -37,14 +37,7 @@ exports.updateComment = [
 ];
 
 exports.getCommentId = (req, res) => {
-  knex
-    .select(
-      "comments.id",
-      "comments.user_id",
-      "comments.comment",
-      "comments.timestamp"
-    )
-    .from("comments")
+  knex("comments")
     .where("comments.id", req.params.id)
     .then((data) => {
       if (data.length === 0) {

@@ -82,8 +82,6 @@ exports.deleteItem = (req, res) => {
 exports.newItem = (req, res) => {
   const uuid = crypto.randomUUID();
   const { title, link, xaxis, yaxis, post_id } = req.body;
-  console.log("req.body: ", req.body);
-
   if (!title || !link || !xaxis || !yaxis || !post_id) {
     return res.status(400).send({
       message:

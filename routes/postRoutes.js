@@ -13,7 +13,6 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-// const upload = multer({ dest: "./public/data/uploads/" });
 
 const upload = multer({ storage: storage });
 
@@ -22,9 +21,10 @@ const checkJwt = auth({
   issuerBaseURL: `https://dev-ezihsb7v3ye3h2nz.us.auth0.com/`,
 });
 
+router.route("/user/:id").get(postController.getAllPosts);
+
 router
   .route("/")
-  .get(postController.getAllPosts)
   .post(checkJwt, upload.single("uploaded_file"), postController.newPost);
 
 router

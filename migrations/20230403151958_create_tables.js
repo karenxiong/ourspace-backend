@@ -8,6 +8,7 @@ exports.up = function (knex) {
       table.uuid("id").primary();
       table.string("title").notNullable();
       table.string("image");
+      table.string("user_picture").notNullable;
       table.string("user_id").notNullable();
       table.string("user_nickname").notNullable();
       table.timestamp("timestamp").defaultTo(knex.fn.now());
@@ -26,26 +27,35 @@ exports.up = function (knex) {
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
     })
-    .createTable("comments", (table) => {
+    .createTable("likes", (table) => {
       table.uuid("id").primary();
       table.string("user_id").notNullable();
-      table.string("comment").notNullable();
-      table
-        .uuid("post_id")
-        .references("posts.id")
-        .onUpdate("CASCADE")
-        .onDelete("CASCADE");
-      table.timestamp("timestamp").defaultTo(knex.fn.now());
-    })
-    .createTable("collections", (table) => {
-      table.uuid("id").primary();
-      table.string("name").notNullable();
       table
         .uuid("post_id")
         .references("posts.id")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
     });
+  // .createTable("comments", (table) => {
+  //   table.uuid("id").primary();
+  //   table.string("user_id").notNullable();
+  //   table.string("comment").notNullable();
+  //   table
+  //     .uuid("post_id")
+  //     .references("posts.id")
+  //     .onUpdate("CASCADE")
+  //     .onDelete("CASCADE");
+  //   table.timestamp("timestamp").defaultTo(knex.fn.now());
+  // })
+  // .createTable("collections", (table) => {
+  //   table.uuid("id").primary();
+  //   table.string("name").notNullable();
+  //   table
+  //     .uuid("post_id")
+  //     .references("posts.id")
+  //     .onUpdate("CASCADE")
+  //     .onDelete("CASCADE");
+  // });
 };
 
 /**
@@ -53,9 +63,12 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema
-    .dropTable("collections")
-    .dropTable("comments")
-    .dropTable("items")
-    .dropTable("posts");
+  return (
+    knex.schema
+      // .dropTable("collections")
+      // .dropTable("comments")
+      .dropTable("items")
+      .dropTable("likes")
+      .dropTable("posts")
+  );
 };
