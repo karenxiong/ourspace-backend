@@ -2,6 +2,11 @@
 
 This is the backend server to run [OurSpace Web App](https://github.com/karenxiong/ourspace). Once you have successfully installed this backend server, please follow [OurSpace Web App's](https://github.com/karenxiong/ourspace) instructions on how to install the client side.
 
+## Project requirements
+To run OurSpace's backend server, you must have `node v18.14.2` installed.
+
+You must also have [MySQL](https://dev.mysql.com/downloads/mysql/) and [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) installed to access, migrate, and seed the database for OurSpace.
+
 ## Project setup
 
 Use `npm` to install the project dependencies:
